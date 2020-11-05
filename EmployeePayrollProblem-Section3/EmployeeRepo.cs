@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
@@ -10,6 +11,8 @@ namespace EmployeePayrollProblem_Section3
     {
         public static string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
         SqlConnection connection = new SqlConnection(connectionString);
+
+        // UC 2
         public void GetEmployee()
         {
             try
@@ -42,6 +45,56 @@ namespace EmployeePayrollProblem_Section3
                     }
                     dr.Close();
                     this.connection.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                this.connection.Close();
+            }
+        }
+        // UC 3
+        public double UpdateEmployeePayroll(PayrollUpdateModel payrollModel)
+        {
+            double payroll = 0;
+            try
+            {
+                using (this.connection)
+                {
+                    EmployeeModel employeeModel = new EmployeeModel();
+                    SqlCommand command = new SqlCommand("spUpdateEmployeePayroll", this.connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Payroll_ID", payrollModel.Payroll_ID);
+                    command.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
+                    command.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
+                    command.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
+                    command.Parameters.AddWithValue("@Emp_ID", payrollModel.Emp_ID);
+
+                    this.connection.Open();
+
+                    SqlDataReader dr = command.ExecuteReader();
+
+                    if (dr.HasRows)
+                    {
+                        while (dr.Read())
+                        {
+                            employeeModel.ID = Convert.ToInt32(dr["Emp_ID"]);
+                            employeeModel.Name = dr["Emp_Name"].ToString();
+                            employeeModel.BasicPay = Convert.ToDouble(dr["BasicPay"]);
+                            Console.WriteLine("{0}, {1}", employeeModel.Name, employeeModel.BasicPay);
+                            payroll = employeeModel.BasicPay;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No data found");
+                    }
+                    dr.Close();
+                    this.connection.Close();
+                    return payroll;
                 }
             }
             catch (Exception e)
