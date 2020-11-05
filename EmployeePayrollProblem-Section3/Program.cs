@@ -7,6 +7,8 @@ namespace EmployeePayrollProblem_Section3
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Employee Payroll Problem -Section3!");
+            EmployeeRepo employeeRepo = new EmployeeRepo();
+            EmployeeModel employee = new EmployeeModel();
         }
     }
 }
