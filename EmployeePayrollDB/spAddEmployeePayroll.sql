@@ -20,16 +20,37 @@ GO
 -- =============================================
 CREATE PROCEDURE spAddEmployeePayroll
 (
+	@Name varchar(50),
+	@PhoneNumber varchar(10),
+	@Address varchar(30),
+	@Gender char(1),
 	@BasicPay decimal(10,2),	
 	@Deductions decimal(10,2),
 	@IncomeTax decimal(10,2),
-	@StartDate datetime,
-	@Emp_ID int
+	@StartDate datetime
 )
 AS
 BEGIN
-	SET NOCOUNT ON;
-	INSERT INTO payroll values(@BasicPay, @Deductions, @IncomeTax, @StartDate, @Emp_ID)
+	SET XACT_ABORT ON;
+	BEGIN TRY
+		BEGIN TRANSACTION;		
+			INSERT INTO employee values(@Name, @PhoneNumber, @Address, @Gender);
+			INSERT INTO payroll values(@BasicPay, @Deductions, @IncomeTax, @StartDate, (SELECT Emp_ID FROM employee WHERE Emp_ID=(SELECT MAX(Emp_ID) FROM employee)));
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		select ERROR_NUMBER() as ErrorNumber, ERROR_MESSAGE() as ErrorMessage;
+		IF (XACT_STATE()) = -1
+			BEGIN
+				PRINT N'The transaction is in an uncommittable state' + 'Rolling back transaction.'
+				ROLLBACK TRANSACTION
+			END;
+		IF (XACT_STATE()) = 1
+			BEGIN
+				PRINT N'The transaction is committable' + 'Committing transaction.'
+				COMMIT TRANSACTION
+			END;
+	END CATCH
 END
 GO
-SELECT * FROM payroll;
+

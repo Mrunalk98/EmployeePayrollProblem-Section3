@@ -115,20 +115,22 @@ namespace EmployeePayrollProblem_Section3
             {
                 using (this.connection)
                 {
-                    SqlCommand command = new SqlCommand("spAddEmployee", this.connection);
+                    SqlCommand command = new SqlCommand("spAddEmployeePayroll", this.connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Name", employeeModel.Name);
                     command.Parameters.AddWithValue("@PhoneNumber", employeeModel.PhoneNumber);
-                    command.Parameters.AddWithValue("@Gender", employeeModel.Gender);
                     command.Parameters.AddWithValue("@Address", employeeModel.Address);
+                    command.Parameters.AddWithValue("@Gender", employeeModel.Gender);
+                    command.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
+                    command.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
+                    command.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
+                    command.Parameters.AddWithValue("@StartDate", DateTime.Now);
                     this.connection.Open();
                     int result = command.ExecuteNonQuery();
-
                     if (result != 0)
                     {
                         string query = @"SELECT MAX(Emp_ID) FROM employee;";
                         SqlCommand cmd = new SqlCommand(query, this.connection);
-
                         SqlDataReader dr = cmd.ExecuteReader();
 
                         if (dr.HasRows)
@@ -137,25 +139,6 @@ namespace EmployeePayrollProblem_Section3
                             {
                                 employeeModel.ID = dr.GetInt32(0);
                                 emp_ID = employeeModel.ID;
-                            }
-                        }
-                        else
-                            Console.WriteLine("No data found ");
-                        dr.Close();
-                        using (this.connection)
-                        {
-                            SqlCommand payrollCommand = new SqlCommand("spAddEmployeePayroll", this.connection);
-                            payrollCommand.CommandType = CommandType.StoredProcedure;
-                            payrollCommand.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
-                            payrollCommand.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
-                            payrollCommand.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
-                            payrollCommand.Parameters.AddWithValue("@StartDate", DateTime.Now);
-                            payrollCommand.Parameters.AddWithValue("@Emp_ID", 1);
-                            int payrollResult = payrollCommand.ExecuteNonQuery();
-
-                            if (payrollResult == 0)
-                            {
-                                DeleteEmployeeFromEmployeeTable(employeeModel);
                             }
                         }
                     }

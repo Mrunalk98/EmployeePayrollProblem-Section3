@@ -12,11 +12,11 @@ namespace EmployeePayrollTestProject
             EmployeeRepo repo = new EmployeeRepo();
             PayrollUpdateModel payrollUpdateModel = new PayrollUpdateModel()
             {
-                Payroll_ID = 6,
-                BasicPay = 6000.00,
-                Deductions = 500,
-                IncomeTax = 500,
-                Emp_ID = 1008
+                Payroll_ID = 1,
+                BasicPay = 4000,
+                Deductions = 200,
+                IncomeTax = 100,
+                Emp_ID = 1001
             };
 
             double Emp_BasicPay = repo.UpdateEmployeePayroll(payrollUpdateModel);
@@ -30,16 +30,16 @@ namespace EmployeePayrollTestProject
             EmployeeRepo repo = new EmployeeRepo();
             EmployeeModel employeeModel = new EmployeeModel()
             {
-                Name = "Lawrene",
-                PhoneNumber = "8885568964",
-                Address = "LA",
+                Name = "Terrisa",
+                PhoneNumber = "7775568964",
+                Address = "SA",
                 Gender = 'F'
             };
             PayrollUpdateModel payrollUpdateModel = new PayrollUpdateModel()
             {
-                BasicPay = 6000.00,
+                BasicPay = 5500,
                 Deductions = 500,
-                IncomeTax = 500
+                IncomeTax = 300
             };
 
             int Emp_ID = repo.AddEmployeeToPayroll(payrollUpdateModel, employeeModel);
