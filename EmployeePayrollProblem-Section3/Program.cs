@@ -9,6 +9,8 @@ namespace EmployeePayrollProblem_Section3
             Console.WriteLine("Welcome to Employee Payroll Problem -Section3!");
             EmployeeRepo employeeRepo = new EmployeeRepo();
             EmployeeModel employee = new EmployeeModel();
+
+            employeeRepo.GetEmployee();
         }
     }
 }
