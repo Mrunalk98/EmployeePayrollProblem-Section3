@@ -108,8 +108,9 @@ namespace EmployeePayrollProblem_Section3
         }
 
         //UC 7
-        public bool AddEmployeeToPayroll(PayrollUpdateModel payrollModel, EmployeeModel employeeModel)
+        public int AddEmployeeToPayroll(PayrollUpdateModel payrollModel, EmployeeModel employeeModel)
         {
+            int emp_ID = 0;
             try
             {
                 using (this.connection)
@@ -133,7 +134,10 @@ namespace EmployeePayrollProblem_Section3
                         if (dr.HasRows)
                         {
                             while (dr.Read())
+                            {
                                 employeeModel.ID = dr.GetInt32(0);
+                                emp_ID = employeeModel.ID;
+                            }
                         }
                         else
                             Console.WriteLine("No data found ");
@@ -146,14 +150,46 @@ namespace EmployeePayrollProblem_Section3
                             payrollCommand.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
                             payrollCommand.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
                             payrollCommand.Parameters.AddWithValue("@StartDate", DateTime.Now);
-                            payrollCommand.Parameters.AddWithValue("@Emp_ID", employeeModel.ID);
+                            payrollCommand.Parameters.AddWithValue("@Emp_ID", 1);
                             int payrollResult = payrollCommand.ExecuteNonQuery();
 
-                            if (payrollResult != 0)
-                                return true;
+                            if (payrollResult == 0)
+                            {
+                                DeleteEmployeeFromEmployeeTable(employeeModel);
+                            }
                         }
                     }
-                    return false;
+                    return emp_ID;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                this.connection.Close();
+            }
+        }
+
+        public void DeleteEmployeeFromEmployeeTable(EmployeeModel employee)
+        {
+            try
+            {
+                using (this.connection)
+                {
+                    SqlCommand command = new SqlCommand("spDeleteEmployee", this.connection);
+                    command.Parameters.AddWithValue("@Name", employee.Name);
+                    command.Parameters.AddWithValue("@PhoneNumber", employee.PhoneNumber);
+                    command.Parameters.AddWithValue("@Gender", employee.Gender);
+                    command.Parameters.AddWithValue("@Address", employee.Address);
+                    int deleteResult = command.ExecuteNonQuery();
+
+                    if (deleteResult == 0)
+                    {
+                        Console.WriteLine("No data found");
+                    }
+                    
                 }
             }
             catch (Exception e)

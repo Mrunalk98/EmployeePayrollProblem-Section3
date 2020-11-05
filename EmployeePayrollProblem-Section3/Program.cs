@@ -20,7 +20,8 @@ namespace EmployeePayrollProblem_Section3
             payroll.Deductions = 500;
             payroll.IncomeTax = 200;
 
-            employeeRepo.AddEmployeeToPayroll(payroll, employee);
+            //employeeRepo.AddEmployeeToPayroll(payroll, employee);
+            //employeeRepo.GetEmployee();
         }
     }
 }
