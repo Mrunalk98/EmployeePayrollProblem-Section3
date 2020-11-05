@@ -106,6 +106,65 @@ namespace EmployeePayrollProblem_Section3
                 this.connection.Close();
             }
         }
+
+        //UC 7
+        public bool AddEmployeeToPayroll(PayrollUpdateModel payrollModel, EmployeeModel employeeModel)
+        {
+            try
+            {
+                using (this.connection)
+                {
+                    SqlCommand command = new SqlCommand("spAddEmployee", this.connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Name", employeeModel.Name);
+                    command.Parameters.AddWithValue("@PhoneNumber", employeeModel.PhoneNumber);
+                    command.Parameters.AddWithValue("@Gender", employeeModel.Gender);
+                    command.Parameters.AddWithValue("@Address", employeeModel.Address);
+                    this.connection.Open();
+                    int result = command.ExecuteNonQuery();
+
+                    if (result != 0)
+                    {
+                        string query = @"SELECT MAX(Emp_ID) FROM employee;";
+                        SqlCommand cmd = new SqlCommand(query, this.connection);
+
+                        SqlDataReader dr = cmd.ExecuteReader();
+
+                        if (dr.HasRows)
+                        {
+                            while (dr.Read())
+                                employeeModel.ID = dr.GetInt32(0);
+                        }
+                        else
+                            Console.WriteLine("No data found ");
+                        dr.Close();
+                        using (this.connection)
+                        {
+                            SqlCommand payrollCommand = new SqlCommand("spAddEmployeePayroll", this.connection);
+                            payrollCommand.CommandType = CommandType.StoredProcedure;
+                            payrollCommand.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
+                            payrollCommand.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
+                            payrollCommand.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
+                            payrollCommand.Parameters.AddWithValue("@StartDate", DateTime.Now);
+                            payrollCommand.Parameters.AddWithValue("@Emp_ID", employeeModel.ID);
+                            int payrollResult = payrollCommand.ExecuteNonQuery();
+
+                            if (payrollResult != 0)
+                                return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                this.connection.Close();
+            }
+        }
     }
 
 }
