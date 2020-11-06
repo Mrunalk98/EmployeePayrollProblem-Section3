@@ -9,20 +9,19 @@ namespace EmployeePayrollProblem_Section3
 
     public class EmployeeRepo
     {
-        public static string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
-        SqlConnection connection = new SqlConnection(connectionString);
-
         // UC 2
         public void GetEmployee()
         {
+            string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
+            SqlConnection connection = new SqlConnection(connectionString);
             try
             {
                 EmployeeModel employeeModel = new EmployeeModel();
-                using (this.connection)
+                using (connection)
                 {
                     string query = @"SELECT Emp_ID, Emp_Name, Emp_Phone, Emp_Address, Emp_Gender FROM employee;";
-                    SqlCommand cmd = new SqlCommand(query, this.connection);
-                    this.connection.Open();
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    connection.Open();
 
                     SqlDataReader dr = cmd.ExecuteReader();
 
@@ -30,12 +29,12 @@ namespace EmployeePayrollProblem_Section3
                     {
                         while (dr.Read())
                         {
-                            employeeModel.ID = dr.GetInt32(0);
+                            employeeModel.Emp_ID = dr.GetInt32(0);
                             employeeModel.Name = dr.GetString(1);
                             employeeModel.PhoneNumber = dr.GetString(2);
                             employeeModel.Address = dr.GetString(3);
                             employeeModel.Gender = dr.GetString(4)[0];
-                            Console.WriteLine("{0}, {1}, {2}, {3}, {4}", employeeModel.ID, employeeModel.Name, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.Gender);
+                            Console.WriteLine("{0}, {1}, {2}, {3}, {4}", employeeModel.Emp_ID, employeeModel.Name, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.Gender);
 
                         }
                     }
@@ -44,7 +43,7 @@ namespace EmployeePayrollProblem_Section3
                         Console.WriteLine("No data found ");
                     }
                     dr.Close();
-                    this.connection.Close();
+                    connection.Close();
                 }
             }
             catch (Exception e)
@@ -53,19 +52,21 @@ namespace EmployeePayrollProblem_Section3
             }
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
         }
         // UC 3
         public double UpdateEmployeePayroll(PayrollUpdateModel payrollModel)
         {
+            string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
+            SqlConnection connection = new SqlConnection(connectionString);
             double payroll = 0;
             try
             {
-                using (this.connection)
+                using (connection)
                 {
                     EmployeeModel employeeModel = new EmployeeModel();
-                    SqlCommand command = new SqlCommand("spUpdateEmployeePayroll", this.connection);
+                    SqlCommand command = new SqlCommand("spUpdateEmployeePayroll", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Payroll_ID", payrollModel.Payroll_ID);
                     command.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
@@ -73,7 +74,7 @@ namespace EmployeePayrollProblem_Section3
                     command.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
                     command.Parameters.AddWithValue("@Emp_ID", payrollModel.Emp_ID);
 
-                    this.connection.Open();
+                    connection.Open();
 
                     SqlDataReader dr = command.ExecuteReader();
 
@@ -81,7 +82,7 @@ namespace EmployeePayrollProblem_Section3
                     {
                         while (dr.Read())
                         {
-                            employeeModel.ID = Convert.ToInt32(dr["Emp_ID"]);
+                            employeeModel.Emp_ID = Convert.ToInt32(dr["Emp_ID"]);
                             employeeModel.Name = dr["Emp_Name"].ToString();
                             employeeModel.BasicPay = Convert.ToDouble(dr["BasicPay"]);
                             Console.WriteLine("{0}, {1}", employeeModel.Name, employeeModel.BasicPay);
@@ -93,7 +94,7 @@ namespace EmployeePayrollProblem_Section3
                         Console.WriteLine("No data found");
                     }
                     dr.Close();
-                    this.connection.Close();
+                    connection.Close();
                     return payroll;
                 }
             }
@@ -103,45 +104,48 @@ namespace EmployeePayrollProblem_Section3
             }
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
         }
 
         //UC 7
-        public int AddEmployeeToPayroll(PayrollUpdateModel payrollModel, EmployeeModel employeeModel)
+        public int AddEmployeeToPayroll(EmployeeModel employeeModel)
         {
+            string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
+            SqlConnection connection = new SqlConnection(connectionString);
             int emp_ID = 0;
             try
             {
-                using (this.connection)
+                using (connection)
                 {
-                    SqlCommand command = new SqlCommand("spAddEmployeePayroll", this.connection);
+                    SqlCommand command = new SqlCommand("spAddEmployeePayroll", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Name", employeeModel.Name);
                     command.Parameters.AddWithValue("@PhoneNumber", employeeModel.PhoneNumber);
                     command.Parameters.AddWithValue("@Address", employeeModel.Address);
                     command.Parameters.AddWithValue("@Gender", employeeModel.Gender);
-                    command.Parameters.AddWithValue("@BasicPay", payrollModel.BasicPay);
-                    command.Parameters.AddWithValue("@Deductions", payrollModel.Deductions);
-                    command.Parameters.AddWithValue("@IncomeTax", payrollModel.IncomeTax);
+                    command.Parameters.AddWithValue("@BasicPay", employeeModel.BasicPay);
+                    command.Parameters.AddWithValue("@Deductions", employeeModel.Deductions);
+                    command.Parameters.AddWithValue("@IncomeTax", employeeModel.IncomeTax);
                     command.Parameters.AddWithValue("@StartDate", DateTime.Now);
-                    this.connection.Open();
+                    connection.Open();
                     int result = command.ExecuteNonQuery();
                     if (result != 0)
                     {
                         string query = @"SELECT MAX(Emp_ID) FROM employee;";
-                        SqlCommand cmd = new SqlCommand(query, this.connection);
+                        SqlCommand cmd = new SqlCommand(query, connection);
                         SqlDataReader dr = cmd.ExecuteReader();
 
                         if (dr.HasRows)
                         {
                             while (dr.Read())
                             {
-                                employeeModel.ID = dr.GetInt32(0);
-                                emp_ID = employeeModel.ID;
+                                employeeModel.Emp_ID = dr.GetInt32(0);
+                                emp_ID = employeeModel.Emp_ID;
                             }
                         }
                     }
+                    connection.Close();
                     return emp_ID;
                 }
             }
@@ -151,39 +155,10 @@ namespace EmployeePayrollProblem_Section3
             }
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
         }
 
-        public void DeleteEmployeeFromEmployeeTable(EmployeeModel employee)
-        {
-            try
-            {
-                using (this.connection)
-                {
-                    SqlCommand command = new SqlCommand("spDeleteEmployee", this.connection);
-                    command.Parameters.AddWithValue("@Name", employee.Name);
-                    command.Parameters.AddWithValue("@PhoneNumber", employee.PhoneNumber);
-                    command.Parameters.AddWithValue("@Gender", employee.Gender);
-                    command.Parameters.AddWithValue("@Address", employee.Address);
-                    int deleteResult = command.ExecuteNonQuery();
-
-                    if (deleteResult == 0)
-                    {
-                        Console.WriteLine("No data found");
-                    }
-                    
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-            finally
-            {
-                this.connection.Close();
-            }
-        }
     }
 
 }

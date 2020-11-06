@@ -131,3 +131,4 @@ inner join department on emp_dept.Dept_ID = department.Dept_ID;
 --insert into employee values('Mark', '7796515265', 'PA', 'M');
 --insert into payroll values(5000,500, 100, '2020-06-01', 1003)
 
+delete from employee where Emp_ID=1015;

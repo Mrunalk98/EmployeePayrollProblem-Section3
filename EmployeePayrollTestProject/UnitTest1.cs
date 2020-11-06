@@ -33,18 +33,16 @@ namespace EmployeePayrollTestProject
                 Name = "Terrisa",
                 PhoneNumber = "7775568964",
                 Address = "SA",
-                Gender = 'F'
-            };
-            PayrollUpdateModel payrollUpdateModel = new PayrollUpdateModel()
-            {
+                Gender = 'F',
                 BasicPay = 5500,
                 Deductions = 500,
                 IncomeTax = 300
             };
+           
+            int Emp_ID = repo.AddEmployeeToPayroll(employeeModel);
 
-            int Emp_ID = repo.AddEmployeeToPayroll(payrollUpdateModel, employeeModel);
-
-            Assert.AreEqual(employeeModel.ID, Emp_ID);
+            Assert.AreEqual(employeeModel.Emp_ID, Emp_ID);
         }
+
     }
 }
