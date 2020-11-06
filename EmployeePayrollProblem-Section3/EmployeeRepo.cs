@@ -108,7 +108,7 @@ namespace EmployeePayrollProblem_Section3
             }
         }
 
-        //UC 7
+        //UC 7 and UC 8 
         public int AddEmployeeToPayroll(EmployeeModel employeeModel)
         {
             string connectionString = @"data source=(localDB)\testDB; database=payroll_service;";
